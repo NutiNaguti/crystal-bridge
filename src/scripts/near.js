@@ -1,5 +1,6 @@
 import * as nearAPI from "near-api-js";
-const { connect, WalletConnection, keyStores } = nearAPI;
+const { connect, WalletConnection, keyStores, Contract } = nearAPI;
+
 
 const connectionConfig = {
   networkId: "testnet",
@@ -24,4 +25,10 @@ export function signOutNearWaller() {
 
 export function isNearWalletSignedIn() {
   return walletConnection.isSignedIn();
+}
+
+const contract = new Contract(walletConnection.account(), import.meta.env.VITE_NEAR_BRIDGE_ACCOUNT_ID, { viewMethods: ["testView"], changeMethods: ["testChange"] });
+
+export async function testContractCall() {
+  await contract.testView();
 }

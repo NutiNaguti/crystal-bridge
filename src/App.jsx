@@ -1,14 +1,55 @@
 import logo from './bridge.svg';
 import styles from './App.module.css';
-import { isNearWalletSignedIn, signInNearWallet, signOutNearWaller } from './scripts/nearWallet';
-import { createSignal, onMount } from 'solid-js';
+import { isNearWalletSignedIn, signInNearWallet, signOutNearWaller, testContractCall } from './scripts/near';
+import { createEffect, createSignal, onMount } from 'solid-js';
+import { connectWallet, lockTokens } from './scripts/ethereum';
 
 function App() {
+  const [mmIsInstalled, setMMIsInstalled] = createSignal(false);
+  const [mmIsLoggedIn, setMMIsLoggedIn] = createSignal(false);
+  const [connectedMMAccount, setConnectedMMAccount] = createSignal(0);
+  const [proof, setProof] = createSignal(undefined);
+
   onMount(async () => {
     if (!isNearWalletSignedIn()) {
       signInNearWallet();
     }
+    if (typeof window.ethereum !== 'undefined') {
+      setMMIsInstalled(true);
+    }
   });
+
+  createEffect(async () => {
+    if (mmIsInstalled()) {
+      let accounts = await connectWallet();
+      setConnectedMMAccount(accounts[0]);
+      if (typeof connectedMMAccount() !== 'undefined') {
+        setMMIsLoggedIn(true);
+      }
+    }
+  });
+
+  createEffect(async () => {
+    ethereum.on('accountsChanged', function(accounts) {
+      let selectedAccount = accounts[0];
+      setConnectedMMAccount(selectedAccount);
+      console.log(`Selected account changed to ${connectedMMAccount()}`);
+    });
+  })
+
+  createEffect(async () => {
+    if (typeof proof() !== 'undefined') {
+      console.log("proof: ", proof())
+      await testContractCall();
+      setProof(undefined);
+    }
+  });
+
+  const onClickSendButton = async () => {
+    const topic = await lockTokens();
+    setProof(topic);
+    console.log("proof: ", proof());
+  }
 
   return (
     <>
@@ -25,7 +66,13 @@ function App() {
             <label for='address'>NEAR address</label>
             <input id={styles.address}></input>
           </div>
-          <button class={styles.button} >Send</button>
+          {
+            mmIsInstalled() ?
+              mmIsLoggedIn() ?
+                <button class={styles.button} onClick={() => onClickSendButton()}>Send</button> :
+                <h4 class={styles.warning}>Metamask not connected</h4> :
+              <h4 class={styles.warning}>Metamask not installed</h4>
+          }
         </div>
         <footer class={styles.footer}>
           <a href='https://github.com/NutiNaguti'>&#9001;NutiNaguti&nbsp;</a>

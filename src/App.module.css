@@ -88,3 +88,8 @@
   flex-grow: 1;
   font-size: 16px;
 }
+
+.warning {
+  color: #D62D00;
+  margin: 27px 0;
+}
