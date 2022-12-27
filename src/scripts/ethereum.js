@@ -20,6 +20,7 @@ export async function lockTokens() {
   const bridge = contract(signer);
   const tx = await bridge.lock(funCoinAmount);
   const receipt = await tx.wait();
+  console.log(receipt);
   console.log("event log: ", receipt.events[2].topics[1]);
   return receipt.events[2].topics[1];
 }
