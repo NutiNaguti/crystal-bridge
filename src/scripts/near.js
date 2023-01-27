@@ -1,7 +1,6 @@
 import * as nearAPI from "near-api-js";
 const { connect, WalletConnection, keyStores, Contract } = nearAPI;
 
-
 const connectionConfig = {
   networkId: "testnet",
   keyStore: new keyStores.BrowserLocalStorageKeyStore(),
@@ -31,4 +30,7 @@ const contract = new Contract(walletConnection.account(), import.meta.env.VITE_N
 
 export async function testContractCall() {
   await contract.testView();
+
 }
+
+export async function verifyTransaction() { }

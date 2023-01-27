@@ -40,7 +40,8 @@ function App() {
   createEffect(async () => {
     if (typeof proof() !== 'undefined') {
       console.log("proof: ", proof())
-      await testContractCall();
+      // await testContractCall();
+
       setProof(undefined);
     }
   });
